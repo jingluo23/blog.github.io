@@ -171,15 +171,15 @@ class CrystalCursor {
         this.currentPointer = type;
         // 定义不同类型的光标样式映射
         const cursorMap = {
-            normal: 'url(/img/normal.cur), default',
-            link: 'url(/img/link.cur), pointer',
-            text: 'url(/img/text.cur), text',
-            move: 'url(/img/move.cur), move',
-            help: 'url(/img/help.cur), help',
-            unavailable: 'url(/img/unavailable.cur), not-allowed',
-            busy: 'url(/img/busy.ani), wait',
-            working: 'url(/img/working.ani), progress',
-            precision: 'url(/img/precision.cur), crosshair'
+            normal: 'url(https://cdn.jsdelivr.net/gh/jingluo23/blog.github.io@main/img/normal.cur), default',
+            link: 'url(https://cdn.jsdelivr.net/gh/jingluo23/blog.github.io@main/img/link.cur), pointer',
+            text: 'url(https://cdn.jsdelivr.net/gh/jingluo23/blog.github.io@main/img/text.cur), text',
+            move: 'url(https://cdn.jsdelivr.net/gh/jingluo23/blog.github.io@main/img/move.cur), move',
+            help: 'url(https://cdn.jsdelivr.net/gh/jingluo23/blog.github.io@main/img/help.cur), help',
+            unavailable: 'url(https://cdn.jsdelivr.net/gh/jingluo23/blog.github.io@main/img/unavailable.cur), not-allowed',
+            busy: 'url(https://cdn.jsdelivr.net/gh/jingluo23/blog.github.io@main/img/busy.ani), wait',
+            working: 'url(https://cdn.jsdelivr.net/gh/jingluo23/blog.github.io@main/img/working.ani), progress',
+            precision: 'url(https://cdn.jsdelivr.net/gh/jingluo23/blog.github.io@main/img/precision.cur), crosshair'
         };
 
         document.body.style.cursor = cursorMap[type] || cursorMap.normal;
