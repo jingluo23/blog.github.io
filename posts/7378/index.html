@@ -208,31 +208,24 @@
 <pre><code>1. **Proposer（提议者）** : 提议者提出提案，用于投票表决。
 2. **Accecptor（接受者）** : 对提案进行投票，并接受达成共识的提案。
 3. **Learner（学习者）** : 被告知投票的结果，接受达成共识的提案。
-</code></pre>
-<p>在实际中，一个节点可以同时充当不同角色。</p>
-<img src="https://cdn.nlark.com/yuque/0/2026/png/40785784/1780297103595-40dce12e-8b04-47df-964f-2f01825ec173.png" width="864" title crop="0,0,1,1" id="u3c27fb79" class="ne-image">
-
-<p>提议者提出提案，提案&#x3D;编号+value，可以表示为[M,V]，每个提案都有唯一编号，而且编号的大小是趋势递增的。</p>
+</code></pre><p>在实际中，一个节点可以同时充当不同角色。</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/40785784/1780297103595-40dce12e-8b04-47df-964f-2f01825ec173.png" width="864" title crop="0,0,1,1" id="u3c27fb79" class="ne-image"></p>
+<p>提议者提出提案，提案=编号+value，可以表示为[M,V]，每个提案都有唯一编号，而且编号的大小是趋势递增的。</p>
 <h4 id="算法流程"><a href="#算法流程" class="headerlink" title="算法流程"></a>算法流程</h4><p>Paxos 算法包含两个阶段，第一阶段 <strong>Prepare(准备)</strong> 、第二阶段 <strong>Accept(接受)</strong> 。</p>
-<img src="https://cdn.nlark.com/yuque/0/2026/png/40785784/1780297151111-161343af-06cf-4ab7-8704-d8334faa50d3.png" width="1080" title crop="0,0,1,1" id="u6428ce6a" class="ne-image">
-
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/40785784/1780297151111-161343af-06cf-4ab7-8704-d8334faa50d3.png" width="1080" title crop="0,0,1,1" id="u6428ce6a" class="ne-image"></p>
 <h4 id="Prepare-准备-阶段"><a href="#Prepare-准备-阶段" class="headerlink" title="Prepare(准备)阶段"></a>Prepare(准备)阶段</h4><pre><code>1. 提议者提议一个新的提案 P[Mn,?]，然后向接受者的某个超过半数的子集成员发送编号为 Mn 的准备请求
 2. 如果一个接受者收到一个编号为 Mn 的准备请求，并且编号 Mn 大于它已经响应的所有准备请求的编号，那么它就会将它已经批准过的最大编号的提案作为响应反馈给提议者，同时该接受者会承诺不会再批准任何编号小于 Mn 的提案。
-</code></pre>
-<p>总结一下，接受者在收到提案后，会给提议者<strong>两个承诺</strong>与<strong>一个应答</strong>：</p>
+</code></pre><p>总结一下，接受者在收到提案后，会给提议者<strong>两个承诺</strong>与<strong>一个应答</strong>：</p>
 <pre><code>- 两个承诺：
     * 承诺不会再接受提案号小于或等于 Mn 的 Prepare 请求
     * 承诺不会再接受提案号小于 Mn 的 Accept 请求
 - 一个应答：
     * 不违背以前作出的承诺的前提下，回复已经通过的提案中提案号最大的那个提案所设定的值和提案号 Mmax，如果这个值从来没有被任何提案设定过，则返回空值。如果不满足已经做出的承诺，即收到的提案号并不是决策节点收到过的最大的，那允许直接对此 Prepare 请求不予理会。
-</code></pre>
-<h4 id="Accept-接受-阶段"><a href="#Accept-接受-阶段" class="headerlink" title="Accept(接受)阶段"></a>Accept(接受)阶段</h4><pre><code>1. 如果提议者收到来自半数以上的接受者对于它发出的编号为 Mn 的准备请求的响应，那么它就会发送一个针对[Mn,Vn]的接受请求给接受者，注意 Vn 的值就是收到的响应中编号最大的提案的值，如果响应中不包含任何提案，那么它可以随意选定一个值。
+</code></pre><h4 id="Accept-接受-阶段"><a href="#Accept-接受-阶段" class="headerlink" title="Accept(接受)阶段"></a>Accept(接受)阶段</h4><pre><code>1. 如果提议者收到来自半数以上的接受者对于它发出的编号为 Mn 的准备请求的响应，那么它就会发送一个针对[Mn,Vn]的接受请求给接受者，注意 Vn 的值就是收到的响应中编号最大的提案的值，如果响应中不包含任何提案，那么它可以随意选定一个值。
 2. 如果接受者收到这个针对[Mn,Vn]提案的接受请求，只要该接受者尚未对编号大于 Mn 的准备请求做出响应，它就可以通过这个提案。
-</code></pre>
-<p>当提议者收到了多数接受者的接受应答后，协商结束，共识决议形成，将形成的决议发送给所有学习节点进行学习。</p>
+</code></pre><p>当提议者收到了多数接受者的接受应答后，协商结束，共识决议形成，将形成的决议发送给所有学习节点进行学习。</p>
 <p>所以 Paxos 算法的整体详细流程如下：</p>
-<img src="https://cdn.nlark.com/yuque/0/2026/png/40785784/1780297312973-b965e3cf-449e-4914-a987-e3eed9e45c84.png" width="1080" title crop="0,0,1,1" id="u3247dd3a" class="ne-image">
-
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/40785784/1780297312973-b965e3cf-449e-4914-a987-e3eed9e45c84.png" width="1080" title crop="0,0,1,1" id="u3247dd3a" class="ne-image"></p>
 <h3 id="Paxos-算法有什么缺点吗？怎么优化？"><a href="#Paxos-算法有什么缺点吗？怎么优化？" class="headerlink" title="Paxos 算法有什么缺点吗？怎么优化？"></a>Paxos 算法有什么缺点吗？怎么优化？</h3><p>前面描述的可以称之为 Basic Paxos 算法，在单提议者的前提下是没有问题的，但是假如有多个提议者互不相让，那么就可能导致整个提议的过程进入了死循环。</p>
 <p>Lamport 提出了 Multi Paxos 的算法思想。</p>
 <p>Multi Paxos 算法思想，简单说就是在多个提议者的情况下，选出一个 Leader（领导者），由领导者作为唯一的提议者，这样就可以解决提议者冲突的问题。</p>
@@ -241,23 +234,19 @@
 <pre><code>- **Leader（领导者）**
 - **Follower（跟随者）**
 - **Candidate（候选人）**
-</code></pre>
-<p>就像一个民主社会，领导者由跟随者投票选出。刚开始没有 <strong>领导者</strong>，所有集群中的 <strong>参与者</strong> 都是 <strong>跟随者</strong>。</p>
+</code></pre><p>就像一个民主社会，领导者由跟随者投票选出。刚开始没有 <strong>领导者</strong>，所有集群中的 <strong>参与者</strong> 都是 <strong>跟随者</strong>。</p>
 <p>那么首先开启一轮大选。在大选期间 <strong>所有跟随者</strong> 都能参与竞选，这时所有跟随者的角色就变成了 <strong>候选人</strong>，民主投票选出领袖后就开始了这届领袖的任期，然后选举结束，所有除 <strong>领导者</strong> 的 <strong>候选人</strong> 又变回 <strong>跟随者</strong> 服从领导者领导。</p>
 <p>这里提到一个概念 <strong>「任期」</strong>，用术语 <code>Term</code> 表达。</p>
 <p>三类角色的变迁图如下：</p>
-<img src="https://cdn.nlark.com/yuque/0/2026/png/40785784/1780297407498-eecb3e3f-9b3a-4970-842f-ee6de1d3558d.png" width="1080" title crop="0,0,1,1" id="ub2774e75" class="ne-image">
-
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/40785784/1780297407498-eecb3e3f-9b3a-4970-842f-ee6de1d3558d.png" width="1080" title crop="0,0,1,1" id="ub2774e75" class="ne-image"></p>
 <h4 id="Leader-选举过程"><a href="#Leader-选举过程" class="headerlink" title="Leader 选举过程"></a>Leader 选举过程</h4><p>Raft 使用心跳（heartbeat）触发 Leader 选举。当 Server 启动时，初始化为 Follower。Leader 向所有 Followers 周期性发送 heartbeat。如果 Follower 在选举超时时间内没有收到 Leader 的 heartbeat，就会等待一段随机的时间后发起一次 Leader 选举。</p>
 <p>Follower 将其当前 term 加一然后转换为 Candidate。它首先给自己投票并且给集群中的其他服务器发送 RequestVote RPC 。结果有以下三种情况：</p>
 <pre><code>- 赢得了多数（超过 1/2）的选票，成功选举为 Leader；
 - 收到了 Leader 的消息，表示有其它服务器已经抢先当选了 Leader；
 - 没有 Server 赢得多数的选票，Leader 选举失败，等待选举时间超时（`Election Timeout`）后发起下一次选举。
-</code></pre>
-<img src="https://cdn.nlark.com/yuque/0/2026/png/40785784/1780297468845-be2a1541-a274-4deb-b78d-83f534d87f6f.png" width="1080" title crop="0,0,1,1" id="u81eae1be" class="ne-image">
-
+</code></pre><p><img src="https://cdn.nlark.com/yuque/0/2026/png/40785784/1780297468845-be2a1541-a274-4deb-b78d-83f534d87f6f.png" width="1080" title crop="0,0,1,1" id="u81eae1be" class="ne-image"></p>
 <p>选出 <code>Leader</code> 后，<code>Leader</code> 通过 <strong>定期</strong> 向所有 <code>Follower</code> 发送 <strong>心跳信息</strong> 维持其统治。若 <code>Follower</code> 一段时间未收到 <code>Leader</code> 的 <strong>心跳</strong>，则认为 <code>Leader</code> 可能已经挂了，然后再次发起 <strong>选举</strong> 过程。</p>
-</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://jingluo23.github.io/blog.github.io">鲸落</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://jingluo23.github.io/blog.github.io/posts/7378/">https://jingluo23.github.io/blog.github.io/posts/7378/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="external nofollow noopener noreferrer">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://jingluo23.github.io/blog.github.io" target="_blank">鲸落のblog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/blog.github.io/article/tags/%E9%9D%A2%E8%AF%95/">面试</a><a class="post-meta__tags" href="/blog.github.io/article/tags/%E5%88%86%E5%B8%83%E5%BC%8F/">分布式</a></div><div class="post-share"><div class="social-share" data-image="https://cdn.nlark.com/yuque/0/2026/png/40785784/1787152665327-406668e4-12f9-4a33-86d1-1e96bbbf748a.png" data-sites="wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i>感谢您的支持！</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/jingluo23/blog.github.io@main/img/wechat.jpg" target="_blank" rel="external nofollow noopener noreferrer"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/jingluo23/blog.github.io@main/img/wechat.jpg" alt="微信"></a><div class="post-qr-code-desc">微信</div></li></ul></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related  no-desc" href="/blog.github.io/posts/7fcc/" title="分布式八股文面试题（三）：分布式事务"><img class="cover" src="https://cdn.nlark.com/yuque/0/2026/png/40785784/1787152665327-406668e4-12f9-4a33-86d1-1e96bbbf748a.png" onerror="onerror=null;src='https://cdn.jsdelivr.net/gh/jingluo23/blog.github.io@main/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">分布式八股文面试题（三）：分布式事务</div></div></div></a><a class="pagination-related  no-desc" href="/blog.github.io/posts/52ed/" title="分布式八股文面试题（五）：分布式设计"><img class="cover" src="https://cdn.nlark.com/yuque/0/2026/png/40785784/1787152665327-406668e4-12f9-4a33-86d1-1e96bbbf748a.png" onerror="onerror=null;src='https://cdn.jsdelivr.net/gh/jingluo23/blog.github.io@main/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">分布式八股文面试题（五）：分布式设计</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related no-desc" href="/blog.github.io/posts/7fcc/" title="分布式八股文面试题（三）：分布式事务"><img class="cover" src="https://cdn.nlark.com/yuque/0/2026/png/40785784/1787152665327-406668e4-12f9-4a33-86d1-1e96bbbf748a.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-09-08</div><div class="info-item-2">分布式八股文面试题（三）：分布式事务</div></div></div></a><a class="pagination-related no-desc" href="/blog.github.io/posts/8444/" title="分布式八股文面试题（一）：分布式理论"><img class="cover" src="https://cdn.nlark.com/yuque/0/2026/png/40785784/1787152665327-406668e4-12f9-4a33-86d1-1e96bbbf748a.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-09-08</div><div class="info-item-2">分布式八股文面试题（一）：分布式理论</div></div></div></a><a class="pagination-related no-desc" href="/blog.github.io/posts/efb9/" title="分布式八股文面试题（二）：分布式锁"><img class="cover" src="https://cdn.nlark.com/yuque/0/2026/png/40785784/1787152665327-406668e4-12f9-4a33-86d1-1e96bbbf748a.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-09-08</div><div class="info-item-2">分布式八股文面试题（二）：分布式锁</div></div></div></a><a class="pagination-related no-desc" href="/blog.github.io/posts/c91b/" title="分布式八股文面试题（六）：分布式限流"><img class="cover" src="https://cdn.nlark.com/yuque/0/2026/png/40785784/1787152665327-406668e4-12f9-4a33-86d1-1e96bbbf748a.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-09-08</div><div class="info-item-2">分布式八股文面试题（六）：分布式限流</div></div></div></a><a class="pagination-related no-desc" href="/blog.github.io/posts/52ed/" title="分布式八股文面试题（五）：分布式设计"><img class="cover" src="https://cdn.nlark.com/yuque/0/2026/png/40785784/1787152665327-406668e4-12f9-4a33-86d1-1e96bbbf748a.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-09-08</div><div class="info-item-2">分布式八股文面试题（五）：分布式设计</div></div></div></a><a class="pagination-related no-desc" href="/blog.github.io/posts/b5ab/" title="Spring八股文面试题（五）：MVC"><img class="cover" src="https://cdn.nlark.com/yuque/0/2026/png/40785784/1787152665327-406668e4-12f9-4a33-86d1-1e96bbbf748a.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-08-17</div><div class="info-item-2">Spring八股文面试题（五）：MVC</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="https://cdn.nlark.com/yuque/0/2026/jpeg/40785784/1787152658457-e682a461-5202-4005-a2d3-e15c4351dfad.jpeg" onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/gh/jingluo23/blog.github.io@main/img/friend_404.gif'" alt="avatar"></div><div class="author-info-name">鲸落</div><div class="author-info-description">专注于JAVA研究 | JAVA项目实战 | JAVA 面试</div><div class="site-data"><a href="/blog.github.io/archives/"><div class="headline">文章</div><div class="length-num">83</div></a><a href="/blog.github.io/article/tags/"><div class="headline">标签</div><div class="length-num">13</div></a><a href="/blog.github.io/article/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><a id="card-info-btn" target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/jingluo23"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/jingluo23" target="_blank" title="Github" rel="external nofollow noopener noreferrer"><i class="fab fa-github" style="color: #8a2be2;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content"><style>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://jingluo23.github.io/blog.github.io">鲸落</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://jingluo23.github.io/blog.github.io/posts/7378/">https://jingluo23.github.io/blog.github.io/posts/7378/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="external nofollow noopener noreferrer">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://jingluo23.github.io/blog.github.io" target="_blank">鲸落のblog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/blog.github.io/article/tags/%E9%9D%A2%E8%AF%95/">面试</a><a class="post-meta__tags" href="/blog.github.io/article/tags/%E5%88%86%E5%B8%83%E5%BC%8F/">分布式</a></div><div class="post-share"><div class="social-share" data-image="https://cdn.nlark.com/yuque/0/2026/png/40785784/1787152665327-406668e4-12f9-4a33-86d1-1e96bbbf748a.png" data-sites="wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i>感谢您的支持！</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/jingluo23/blog.github.io@main/img/wechat.jpg" target="_blank" rel="external nofollow noopener noreferrer"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/jingluo23/blog.github.io@main/img/wechat.jpg" alt="微信"></a><div class="post-qr-code-desc">微信</div></li></ul></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related  no-desc" href="/blog.github.io/posts/7fcc/" title="分布式八股文面试题（三）：分布式事务"><img class="cover" src="https://cdn.nlark.com/yuque/0/2026/png/40785784/1787152665327-406668e4-12f9-4a33-86d1-1e96bbbf748a.png" onerror="onerror=null;src='https://cdn.jsdelivr.net/gh/jingluo23/blog.github.io@main/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">分布式八股文面试题（三）：分布式事务</div></div></div></a><a class="pagination-related  no-desc" href="/blog.github.io/posts/52ed/" title="分布式八股文面试题（五）：分布式设计"><img class="cover" src="https://cdn.nlark.com/yuque/0/2026/png/40785784/1787152665327-406668e4-12f9-4a33-86d1-1e96bbbf748a.png" onerror="onerror=null;src='https://cdn.jsdelivr.net/gh/jingluo23/blog.github.io@main/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">分布式八股文面试题（五）：分布式设计</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related no-desc" href="/blog.github.io/posts/c91b/" title="分布式八股文面试题（六）：分布式限流"><img class="cover" src="https://cdn.nlark.com/yuque/0/2026/png/40785784/1787152665327-406668e4-12f9-4a33-86d1-1e96bbbf748a.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-09-08</div><div class="info-item-2">分布式八股文面试题（六）：分布式限流</div></div></div></a><a class="pagination-related no-desc" href="/blog.github.io/posts/52ed/" title="分布式八股文面试题（五）：分布式设计"><img class="cover" src="https://cdn.nlark.com/yuque/0/2026/png/40785784/1787152665327-406668e4-12f9-4a33-86d1-1e96bbbf748a.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-09-08</div><div class="info-item-2">分布式八股文面试题（五）：分布式设计</div></div></div></a><a class="pagination-related no-desc" href="/blog.github.io/posts/8444/" title="分布式八股文面试题（一）：分布式理论"><img class="cover" src="https://cdn.nlark.com/yuque/0/2026/png/40785784/1787152665327-406668e4-12f9-4a33-86d1-1e96bbbf748a.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-09-08</div><div class="info-item-2">分布式八股文面试题（一）：分布式理论</div></div></div></a><a class="pagination-related no-desc" href="/blog.github.io/posts/efb9/" title="分布式八股文面试题（二）：分布式锁"><img class="cover" src="https://cdn.nlark.com/yuque/0/2026/png/40785784/1787152665327-406668e4-12f9-4a33-86d1-1e96bbbf748a.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-09-08</div><div class="info-item-2">分布式八股文面试题（二）：分布式锁</div></div></div></a><a class="pagination-related no-desc" href="/blog.github.io/posts/7fcc/" title="分布式八股文面试题（三）：分布式事务"><img class="cover" src="https://cdn.nlark.com/yuque/0/2026/png/40785784/1787152665327-406668e4-12f9-4a33-86d1-1e96bbbf748a.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-09-08</div><div class="info-item-2">分布式八股文面试题（三）：分布式事务</div></div></div></a><a class="pagination-related no-desc" href="/blog.github.io/posts/dfe3/" title="RocketMQ八股文面试题（三）：原理"><img class="cover" src="https://cdn.nlark.com/yuque/0/2026/png/40785784/1787152665327-406668e4-12f9-4a33-86d1-1e96bbbf748a.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-09-08</div><div class="info-item-2">RocketMQ八股文面试题（三）：原理</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="https://cdn.nlark.com/yuque/0/2026/jpeg/40785784/1787152658457-e682a461-5202-4005-a2d3-e15c4351dfad.jpeg" onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/gh/jingluo23/blog.github.io@main/img/friend_404.gif'" alt="avatar"></div><div class="author-info-name">鲸落</div><div class="author-info-description">专注于JAVA研究 | JAVA项目实战 | JAVA 面试</div><div class="site-data"><a href="/blog.github.io/archives/"><div class="headline">文章</div><div class="length-num">83</div></a><a href="/blog.github.io/article/tags/"><div class="headline">标签</div><div class="length-num">13</div></a><a href="/blog.github.io/article/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><a id="card-info-btn" target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/jingluo23"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/jingluo23" target="_blank" title="Github" rel="external nofollow noopener noreferrer"><i class="fab fa-github" style="color: #8a2be2;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content"><style>
 .announcement-card {
     --main-color: #ff00ff;
     --secondary-color: #00ffff;
@@ -408,7 +397,84 @@
     });
   });
 </script>
-</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/blog.github.io/js/utils.js?v=5.7.0"></script><script src="/blog.github.io/js/main.js?v=5.7.0"></script><div class="js-pjax"></div><script defer src="https://cdn.jsdelivr.net/gh/jingluo23/blog.github.io@main/js/cursor.js"></script><script src="https://cdn.jsdelivr.net/gh/jingluo23/blog.github.io@main/js/sakura.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="输入关键词…" type="text"></div><hr><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/blog.github.io/js/search/local-search.js?v=5.7.0"></script></div></div><!-- hexo injector body_end start --><script data-pjax>
+</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/blog.github.io/js/utils.js?v=5.7.0"></script><script src="/blog.github.io/js/main.js?v=5.7.0"></script><div class="js-pjax"><script>(() => {
+  const changeScriptToMath = article => {
+    article.querySelectorAll('script[type^="math/tex"]').forEach(el => {
+      const display = /mode=display/.test(el.type)
+      const node = document.createElement(display ? 'div' : 'span')
+      node.textContent = display
+        ? `$$${el.textContent}$$`
+        : `$${el.textContent}$`
+      el.parentNode.replaceChild(node, el)
+    })
+  }
+
+  const loadMathjax = () => {
+    const article = document.getElementById('article-container')
+    if (!article || article.querySelector('.hbe-container')) return
+    changeScriptToMath(article)
+
+    if (!window.MathJax) {
+      window.MathJax = {
+        loader: {
+          load: [
+            // Four font extension packages (optional)
+            //- '[tex]/bbm',
+            //- '[tex]/bboldx',
+            //- '[tex]/dsfont',
+            '[tex]/mhchem',
+            'ui/lazy'
+          ],
+          paths: {
+            'mathjax-newcm': '[mathjax]/../@mathjax/mathjax-newcm-font',
+
+            //- // Four font extension packages (optional)
+            //- 'mathjax-bbm-extension': '[mathjax]/../@mathjax/mathjax-bbm-font-extension',
+            //- 'mathjax-bboldx-extension': '[mathjax]/../@mathjax/mathjax-bboldx-font-extension',
+            //- 'mathjax-dsfont-extension': '[mathjax]/../@mathjax/mathjax-dsfont-font-extension',
+            'mathjax-mhchem-extension': '[mathjax]/../@mathjax/mathjax-mhchem-font-extension'
+          }
+        },
+        output: {
+          font: 'mathjax-newcm',
+        },
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          tags: 'none',
+          packages: {
+            '[+]': [
+              'mhchem'
+            ]
+          }
+        },
+        chtml: {
+          scale: 1.1
+        },
+        options: {
+          lazyMargin: '200px',
+          enableMenu: true,
+          menuOptions: {
+            settings: {
+              enrich: false  // Turn off Braille and voice narration text automatic generation
+            }
+          },
+        }
+      }
+
+      const script = document.createElement('script')
+      script.src = 'https://cdn.jsdelivr.net/npm/mathjax@4.1.3/tex-mml-chtml.min.js'
+      script.id = 'MathJax-script'
+      script.async = true
+      document.head.appendChild(script)
+    } else {
+      MathJax.typesetClear()
+      MathJax.typesetPromise([ article ])
+    }
+  }
+
+  btf.addGlobalFn('encrypt', loadMathjax, 'mathjax')
+  window.pjax ? loadMathjax() : window.addEventListener('load', loadMathjax)
+})()</script></div><script defer src="https://cdn.jsdelivr.net/gh/jingluo23/blog.github.io@main/js/cursor.js"></script><script src="https://cdn.jsdelivr.net/gh/jingluo23/blog.github.io@main/js/sakura.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="输入关键词…" type="text"></div><hr><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/blog.github.io/js/search/local-search.js?v=5.7.0"></script></div></div><!-- hexo injector body_end start --><script data-pjax>
     function butterfly_categories_card_injector_config(){
       var parent_div_git = document.getElementById('page');
       var item_html = '<style>li.categoryBar-list-item{width:32.3%;}.categoryBar-list{max-height: 570px;overflow:auto;}.categoryBar-list::-webkit-scrollbar{width:0!important}@media screen and (max-width: 650px){.categoryBar-list{max-height: 480px;}}</style><div class="recent-post-item" style="height:auto;width:100%;padding:0px;"><div id="categoryBar"><ul class="categoryBar-list"><li class="categoryBar-list-item" style="background:url(https://npm.elemecdn.com/akilar-candyassets/image/cover1.webp);"> <a class="categoryBar-list-link" href="/article/categories/面试/">面试</a><span class="categoryBar-list-count">83</span><span class="categoryBar-list-descr">面试</span></li></ul></div></div>';
